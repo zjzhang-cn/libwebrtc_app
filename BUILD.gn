@@ -1,0 +1,58 @@
+import("../webrtc.gni")
+
+if (is_android) {
+  import("//build/config/android/config.gni")
+  import("//build/config/android/rules.gni")
+} else if (is_mac) {
+  import("//build/config/mac/rules.gni")
+} else if (is_ios) {
+  import("//build/config/ios/rules.gni")
+} else if (is_linux) {
+  import("//build/config/linux/pkg_config.gni")
+}
+
+if (is_linux) {
+  pkg_config("gio") {
+    packages = [
+      "gio-2.0",
+      "gio-unix-2.0",
+    ]
+  }
+}
+
+
+rtc_executable("libwebrtc_app") {
+  cflags = [
+    "-fno-strict-aliasing"
+  ]
+
+  ldflags = [
+    "-Wl,--fatal-warnings",
+    "-Wl,-rpath,.",
+  ]
+  libs = []
+  include_dirs = [
+    ".",
+    "include",
+  ]
+
+  defines = [
+    "USE_LIBYUV",
+    "WEBRTC_INCLUDE_INTERNAL_AUDIO_DEVICE",
+  ]
+
+  if (is_linux) {
+    defines += [
+      "WEBRTC_LINUX",
+      "WEBRTC_POSIX",
+    ]
+  }
+
+  sources = [
+    "src/main.cpp",
+  ]
+
+  deps = [
+    "//libwebrtc",
+  ]
+}
